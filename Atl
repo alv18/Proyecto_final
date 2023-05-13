@@ -1,6 +1,9 @@
 #include <iostream>
 #include <stdlib.h>
 
+//Avance de proyecto solicitud de datos del atleta
+// Michell, Yesenia, Ana
+
 using namespace std;
 
 
