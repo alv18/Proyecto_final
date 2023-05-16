@@ -19,6 +19,7 @@ atleta *cab, *aux, *aux2;
 
 int registrar() {
     aux = (struct atleta*) malloc (sizeof(struct atleta));
+    aux->vuelta = 0;
     aux->sig = NULL;
     cout<<"Ingrese el nombre del atleta: ";
     cin>>aux->nombre;
