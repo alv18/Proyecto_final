@@ -1,0 +1,143 @@
+#include <iostream>
+#include <stdlib.h>
+
+using namespace std;
+
+
+struct atleta {
+    int numero;
+    char nombre[20];
+    double tiempo;
+    int vuelta;
+    int tiempototal;
+    atleta *sig;
+};
+atleta *cab, *aux, *aux2;
+
+struct promedios{
+    float prom;
+    promedios *sig;
+    promedios *izq, *der;
+};
+promedios *cabp, *auxp;
+
+int registrar() {
+    aux = (struct atleta*) malloc (sizeof(struct atleta));
+    aux->vuelta = 0;
+    aux->sig = NULL;
+    cout<<"Ingrese el nombre del atleta: ";
+    cin>>aux->nombre;
+    cout<<"Ingrese el numero del atleta: ";
+    cin>>aux->numero;
+    if(!cab){
+        cab = aux;
+        aux = NULL;
+        free(aux);
+    } else {
+        aux2 = cab;
+        while(aux2->sig!=NULL){
+            aux2 = aux2->sig;
+        }
+        aux2->sig=aux;
+        aux = aux2 = NULL;
+        free(aux);
+        free(aux2);
+    }
+}
+    
+    int mostrar(){
+    for (aux = cab; aux!=NULL; aux = aux->sig){
+        cout<<"Atleta: "<<aux->nombre<<"  numero: "<<aux->numero<< "  "" Vuelta: "<<aux->vuelta<< "  ""Tiempo: " <<aux->tiempo<<endl;
+    }
+}
+
+
+ int calcularPromedios(){
+	float prom1;
+    int bandera = 0;
+    prom1 =  aux->tiempototal/aux->vuelta;
+    if(cabp==NULL){
+        cabp = (struct promedios*) malloc (sizeof(struct promedios));
+        cabp->prom = prom1;
+        cabp->sig = NULL;
+        cabp->izq = NULL;
+        cabp->der = NULL;
+    } else{
+    	if (prom1 < cabp->prom){
+        	cabp->izq = (promedios*)malloc(sizeof(promedios));
+            cabp->izq->prom = prom1;
+            cabp->izq->sig = NULL;
+            cabp->izq->izq = NULL;
+            cabp->izq->der = NULL;
+        } else {
+            cabp->der = (promedios*)malloc(sizeof(promedios));
+            cabp->der->prom = prom1;
+            cabp->der->sig = NULL;
+            cabp->der->izq = NULL;
+            cabp->der->der = NULL;
+		}
+	}
+}
+
+    int agregarVuelta(){
+    int numatl;
+    int bandera = 0;    
+    mostrar();
+    cout<<"Registre el numero del atleta"<<endl;
+    cin>>numatl;
+    aux = cab;
+    while(aux!=NULL){        
+        if(aux->numero == numatl){            
+            bandera = 1; 
+            aux->vuelta++;
+            cout<<"Es el atleta: "<<aux->nombre<<" ("<<aux->vuelta<<") :: "<<aux->tiempo<<endl;
+            cout<<"Registre el tiempo: "<<endl;
+            cin>>aux->tiempo;
+            aux->tiempototal = aux->tiempototal + aux->tiempo;
+             if(aux->vuelta>=2){
+                calcularPromedios();
+
+        }
+        aux = aux->sig;
+    }
+    if(bandera==0){
+        cout<<"El atleta no existe"<<endl;
+    }
+        
+}
+}
+
+   
+
+int mostrarPromedios(promedios* cabp){
+    if (cabp != NULL) {
+        mostrarPromedios(cabp->izq);  
+        cout<<"Promedio  " <<cab->nombre<<" "<<cabp->prom << " ";   
+        mostrarPromedios(cabp->der);  
+    }
+}
+
+
+    
+    int main() {
+    int opcion = 0;
+    do {
+        cout<<endl<<endl<<"1. Registrar atletas"<<endl;
+        cout<<"2. ver atletas"<<endl;
+        cout<<"3. Registrar vuelta"<<endl;
+        cout<<"4. Mostrar promedios"<<endl;
+        cin>>opcion;
+        switch(opcion){
+            case 1: registrar(); 
+            break;
+            case 2: mostrar(); 
+            break;
+            case 3: agregarVuelta();
+            break;
+            case 4: mostrarPromedios(cabp);
+            break;
+
+        }
+    } while(opcion!=5);
+    return 0;
+}
