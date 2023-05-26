@@ -1,96 +1,194 @@
 #include <iostream>
 #include <stdlib.h>
-
-//Avance de proyecto solicitud de datos del atleta
-//Ana Vente 
-//Michell Andrea
-//Yesenia
+#include <cstring>
 
 using namespace std;
 
 
-struct atleta {
+struct Atleta {
     int numero;
     char nombre[20];
     double tiempo;
     int vuelta;
-    atleta *sig;
+    double tiempoTotal;
+    double promedio;
+    Atleta *izq;
+    Atleta *der;
+    
 };
-atleta *cab, *aux, *aux2;
 
+//Crea un nuevo atleta 
+    Atleta* crearAtleta(int numero, char nombre[], double tiempo, int vuelta, double tiempoTotal, double promedio ) {
+    Atleta* nuevoAtleta = (Atleta*)malloc(sizeof(Atleta));
+    strcpy (nuevoAtleta->nombre, nombre);
+    nuevoAtleta->numero = numero;
+    nuevoAtleta->tiempo = tiempo;
+    nuevoAtleta->vuelta = vuelta;
+    nuevoAtleta->tiempoTotal = tiempoTotal;
+    nuevoAtleta->promedio = promedio;
+    nuevoAtleta->izq = NULL;
+    nuevoAtleta->der = NULL;
+    return nuevoAtleta;
+}
 
-int registrar() {
-    aux = (struct atleta*) malloc (sizeof(struct atleta));
-    aux->vuelta = 0;
-    aux->sig = NULL;
+Atleta* insertarAtleta(Atleta* raiz, Atleta* nuevoAtleta) {
+    if (raiz == NULL) {
+        return nuevoAtleta;
+    }
+
+    if (nuevoAtleta->numero < raiz->numero) {
+        raiz->izq = insertarAtleta(raiz->izq, nuevoAtleta);
+    } else if (nuevoAtleta->numero > raiz->numero) {
+        raiz->der = insertarAtleta(raiz->der, nuevoAtleta);
+    }
+
+    return raiz;
+}
+    
+ //Buscar los atletas (hacer comparacion en caso de numeros iguales)  
+   Atleta* buscarAtleta(Atleta* raiz, int numero) {
+    if (raiz == NULL || raiz->numero == numero) {
+        return raiz;
+    }
+    if (numero < raiz->numero) {
+        return buscarAtleta(raiz->izq, numero);
+    }
+    return buscarAtleta(raiz->der, numero);
+}
+    
+    
+    void registrarAtleta(Atleta*& raiz) {
+    int numero;
+    char nombre[20];
+    double tiempo=0;
+    int vuelta;
+    double tiempo_total=0;
+    double promedio=0;
     cout<<"Ingrese el nombre del atleta: ";
-    cin>>aux->nombre;
-    cout<<"Ingrese el numero del atleta: ";
-    cin>>aux->numero;
-    if(!cab){
-        cab = aux;
-        aux = NULL;
-        free(aux);
-    } else {
-        aux2 = cab;
-        while(aux2->sig!=NULL){
-            aux2 = aux2->sig;
-        }
-        aux2->sig=aux;
-        aux = aux2 = NULL;
-        free(aux);
-        free(aux2);
+    cin>>nombre;
+    cout<<"Ingrese el número asignado al atleta: ";
+    cin>>numero;
+
+    Atleta* AtletaExistente = buscarAtleta(raiz, numero);
+    if (AtletaExistente != NULL) {
+        cout << "El número " << numero << " ya ha sido utilizado por otro atleta." << endl;
+        return;
+    }
+	
+	Atleta* nuevoAtleta = crearAtleta(numero, nombre, tiempo, 0, tiempo, 0);
+    raiz = insertarAtleta(raiz, nuevoAtleta); // Insertar el nuevo atleta en el árbol
+}
+
+
+//Recorrido inorden
+void mostrarPorPromedios(Atleta* raiz) {
+    if (raiz == NULL) {
+        return;
+    }
+
+    if (raiz->izq != NULL) {
+        mostrarPorPromedios(raiz->izq);
+    }
+
+    cout << "Atleta: " << raiz->nombre << endl;
+    cout << "Número: " << raiz->numero << endl;
+    cout << "Vuelta: " << raiz->vuelta << endl;
+    cout << "Tiempo: " << raiz->tiempo << endl;
+    cout << "Tiempo total: " << raiz->tiempoTotal << endl;
+    cout << "Promedio: " << raiz->promedio << endl;
+    cout << endl;
+
+    if (raiz->der != NULL) {
+        mostrarPorPromedios(raiz->der);
     }
 }
     
-    int mostrar(){
-    for (aux = cab; aux!=NULL; aux = aux->sig){
-        cout<<"Atleta: "<<aux->nombre<<"  numero: "<<aux->numero<< "  "" Vuelta: "<<aux->vuelta<< "  ""Tiempo: " <<aux->tiempo<<endl;
+    void mostrar(Atleta* raiz) {
+    if (raiz == NULL) {
+        cout << "No se han registrado Atletas." << endl;
+        return;
+    }
+
+    if (raiz->izq != NULL) {
+        mostrar(raiz->izq);
+    }
+
+    cout << "Atleta: " << raiz->nombre << endl;
+    cout << "Número: " << raiz->numero << endl;
+    cout << "Vuelta: " << raiz->vuelta << endl;
+    cout << "Tiempo: " << raiz->tiempo << endl;
+    cout << "Tiempo total: " << raiz->tiempoTotal << endl;
+    cout << "Promedio: " << raiz->promedio << endl;
+    cout << endl;
+
+    if (raiz->der != NULL) {
+        mostrar(raiz->der);
     }
 }
 
 
-    int agregarVuelta(){
-    int numatl;
-    int bandera = 0;    
-    mostrar();
-    cout<<"Registre el numero del atleta"<<endl;
-    cin>>numatl;
-    aux = cab;
-    while(aux!=NULL){        
-        if(aux->numero == numatl){            
-            bandera = 1; 
-            aux->vuelta++;
-            cout<<"Es el atleta: "<<aux->nombre<<" ("<<aux->vuelta<<") :: "<<aux->tiempo<<endl;
-            cout<<"Registre el tiempo: "<<endl;
-            cin>>aux->tiempo;
 
+void agregarVuelta(Atleta* raiz) {
+    int numero;
+    cout << "Ingrese el número del atleta: ";
+    cin >> numero;
+
+    Atleta* atleta = buscarAtleta(raiz, numero); // Buscar el corredor
+    if (atleta != NULL) {
+        atleta->vuelta++; // Incrementa el número de vueltas
+        cout << "Es el atleta: " << atleta->nombre << " (" << atleta->vuelta << ") :: " << atleta->tiempo << endl;
+        cout << "Registre el tiempo: " << endl;
+        cin >> atleta->tiempo;
+        atleta->tiempoTotal += atleta->tiempo; // Actualizar el tiempo total
+        if (atleta->vuelta >= 2) {
+            // Calcular promedios si el corredor ha completado al menos 2 vueltas
+               atleta->promedio = atleta->tiempoTotal / atleta->vuelta; // Calcular el nuevo promedio
         }
-        aux = aux->sig;
+        } else {
+        cout << "No se encontró un corredor con el número " << numero << endl;
     }
-    if(bandera==0){
-        cout<<"El atleta no existe"<<endl;
-    }
-        
 }
+
+
+
 
     
-    int main() {
+ int main() {
+    Atleta* atletasRaiz = NULL; // Inicializar la raíz del árbol de atleta
+
     int opcion = 0;
     do {
-        cout<<endl<<endl<<"1. Registrar atletas"<<endl;
-        cout<<"2. ver atletas"<<endl;
-        cout<<"3. Registrar vuelta"<<endl;
-        cout<<"4. Mostrar promedios"<<endl;
-        cin>>opcion;
-        switch(opcion){
-            case 1: registrar(); 
-            break;
-            case 2: mostrar(); 
-            break;
-            case 3:agregarVuelta();
+        cout << endl << endl << "MENU PRINCIPAL" << endl;
+        cout << "1. Registrar atletas" << endl;
+        cout << "2. Ver atletas" << endl;
+        cout << "3. Registrar vuelta" << endl;
+        cout << "4. Mostrar promedios" << endl;
+        cout << "5. Salir" << endl;
+        cout << "Seleccione una opción: ";
+        cin >> opcion;
 
+        switch (opcion) {
+            case 1:
+                registrarAtleta(atletasRaiz); 
+                break;
+            case 2:
+                mostrar(atletasRaiz);
+                break;
+            case 3:
+                agregarVuelta(atletasRaiz);
+                break;
+            case 4: mostrarPorPromedios(atletasRaiz);
+				break;
+            case 5:
+                cout << "Saliendo del programa..." << endl;
+                break;
+            default:
+                cout << "Opción inválida. Intente nuevamente." << endl;
+                break;
         }
-    } while(opcion!=5);
+    } while (opcion != 5);
+
+
+
     return 0;
 }
